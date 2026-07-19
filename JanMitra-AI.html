@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JanMitra AI — Government Scheme Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo: #1B2A4A;
+    --indigo-soft: #2E4270;
+    --turmeric: #E8A33D;
+    --turmeric-deep: #C97F1F;
+    --field-green: #3F7A52;
+    --soil: #6B4A32;
+    --paper: #FBF6EC;
+    --paper-dim: #F1E9D8;
+    --rose: #B33F3F;
+    --ink: #221C14;
+    --line: rgba(34,28,20,0.14);
+    --radius: 16px;
+    --shadow: 0 6px 20px rgba(27,42,74,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans','Noto Sans Devanagari','Noto Sans Tamil',sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .lang-hi, .lang-hi *{font-family:'Noto Sans Devanagari','Noto Sans',sans-serif;}
+  .lang-ta, .lang-ta *{font-family:'Noto Sans Tamil','Noto Sans',sans-serif;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 60px;}
+
+  /* Top bar */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;max-width:760px;margin:0 auto;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand svg{width:34px;height:34px;flex-shrink:0;}
+  .brand-name{font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--indigo);letter-spacing:-0.01em;}
+  .offline-pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--field-green);color:#fff;font-size:0.72rem;font-weight:600;
+    padding:4px 10px;border-radius:100px;white-space:nowrap;
+  }
+  .offline-pill .dot{width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block;}
+
+  .lang-switch{display:flex;gap:6px;}
+  .lang-btn{
+    border:1px solid var(--line);background:#fff;color:var(--indigo);
+    padding:6px 12px;border-radius:100px;font-size:0.82rem;font-weight:600;
+    cursor:pointer;transition:.15s;
+  }
+  .lang-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+
+  /* Hero */
+  .hero{
+    background:linear-gradient(180deg, var(--indigo) 0%, var(--indigo-soft) 100%);
+    border-radius:24px;color:#fff;padding:36px 28px 30px;margin:8px auto 22px;max-width:760px;
+    position:relative;overflow:hidden;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-40px;bottom:-60px;width:220px;height:220px;
+    background:radial-gradient(circle, rgba(232,163,61,0.35) 0%, transparent 70%);
+  }
+  .hero h1{font-family:'Fraunces',serif;font-weight:700;font-size:2rem;margin:0 0 8px;position:relative;}
+  .hero p.tagline{margin:0 0 22px;opacity:0.88;font-size:1.02rem;position:relative;}
+  .hero-path{display:flex;align-items:center;gap:0;margin:20px 0 26px;position:relative;}
+  .hero-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+  .hero-step .lamp{
+    width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.14);
+    display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.35);
+  }
+  .hero-step .lamp svg{width:16px;height:16px;}
+  .hero-step .lbl{font-size:0.7rem;opacity:0.85;text-align:center;}
+  .hero-connector{flex:0.6;height:2px;background:rgba(255,255,255,0.25);margin-bottom:22px;}
+  .start-btn{
+    background:var(--turmeric);color:var(--indigo);border:none;
+    font-weight:700;font-size:1.05rem;padding:14px 26px;border-radius:100px;
+    cursor:pointer;box-shadow:0 8px 20px rgba(232,163,61,0.35);position:relative;
+    transition:.15s;
+  }
+  .start-btn:hover{background:var(--turmeric-deep);color:#fff;}
+
+  /* Cards / sections */
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:16px;border:1px solid var(--line);}
+  .section-label{
+    font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+    color:var(--field-green);margin-bottom:6px;display:block;
+  }
+
+  /* Progress path (signature element) */
+  .progress-wrap{margin:18px 0 22px;}
+  .progress-track{
+    display:flex;gap:4px;margin-bottom:8px;
+  }
+  .progress-seg{flex:1;height:6px;border-radius:4px;background:var(--paper-dim);overflow:hidden;}
+  .progress-seg.done{background:var(--turmeric);}
+  .progress-text{font-size:0.82rem;color:var(--soil);font-weight:600;}
+
+  /* Chat / question flow */
+  .q-bubble{
+    background:var(--paper-dim);border-radius:16px 16px 16px 4px;padding:16px 18px;
+    margin-bottom:16px;font-size:1.08rem;font-weight:600;color:var(--indigo);
+    display:flex;align-items:flex-start;gap:10px;
+  }
+  .q-bubble .icon{flex-shrink:0;margin-top:2px;}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:480px){.options{grid-template-columns:1fr;}}
+  .opt-btn{
+    background:#fff;border:1.5px solid var(--line);border-radius:12px;
+    padding:14px 14px;font-size:0.98rem;font-weight:600;color:var(--ink);
+    cursor:pointer;text-align:left;transition:.12s;
+  }
+  .opt-btn:hover{border-color:var(--turmeric);background:#FFF8EC;}
+  .opt-btn.selected{border-color:var(--field-green);background:#EEF6F0;color:var(--field-green);}
+
+  .mic-row{display:flex;justify-content:center;margin-top:14px;}
+  .mic-btn{
+    display:inline-flex;align-items:center;gap:8px;background:none;border:1.5px dashed var(--line);
+    color:var(--soil);padding:9px 16px;border-radius:100px;font-size:0.85rem;cursor:pointer;
+  }
+  .mic-btn.listening{border-color:var(--rose);color:var(--rose);}
+  .mic-btn svg{width:15px;height:15px;}
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:18px;}
+  .back-link{background:none;border:none;color:var(--soil);font-weight:600;cursor:pointer;font-size:0.9rem;}
+
+  /* Results */
+  .result-card{border-left:5px solid var(--field-green);}
+  .result-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .result-name{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--indigo);margin:0 0 6px;}
+  .result-desc{font-size:0.95rem;color:var(--ink);opacity:0.85;margin:0 0 12px;}
+  .listen-btn{
+    flex-shrink:0;background:var(--paper-dim);border:none;border-radius:100px;
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .listen-btn svg{width:17px;height:17px;color:var(--indigo);}
+  .toggle-row{margin-top:6px;}
+  .toggle-btn{
+    background:none;border:none;color:var(--field-green);font-weight:700;font-size:0.85rem;
+    cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px;
+  }
+  .why-box{
+    background:var(--paper-dim);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:0.9rem;display:none;
+  }
+  .why-box.open{display:block;}
+  .doc-list{margin-top:12px;list-style:none;padding:0;}
+  .doc-list li{
+    display:flex;align-items:center;gap:8px;font-size:0.9rem;padding:6px 0;border-bottom:1px dashed var(--line);
+  }
+  .doc-list li:last-child{border-bottom:none;}
+  .doc-list input{width:16px;height:16px;accent-color:var(--field-green);}
+
+  .agg-checklist li{padding:9px 0;font-size:0.95rem;}
+
+  .office-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .office-item:last-child{border-bottom:none;}
+  .office-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--paper-dim);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .office-icon svg{width:19px;height:19px;color:var(--field-green);}
+  .office-title{font-weight:700;font-size:0.95rem;color:var(--indigo);margin:0 0 2px;}
+  .office-desc{font-size:0.86rem;opacity:0.8;margin:0;}
+
+  .restart-btn{
+    width:100%;background:var(--indigo);color:#fff;border:none;padding:14px;border-radius:12px;
+    font-weight:700;font-size:1rem;cursor:pointer;margin-top:6px;
+  }
+  .print-btn{
+    width:100%;background:#fff;color:var(--indigo);border:1.5px solid var(--indigo);padding:12px;border-radius:12px;
+    font-weight:700;font-size:0.95rem;cursor:pointer;margin-top:10px;
+  }
+  .disclaimer{font-size:0.78rem;opacity:0.65;text-align:center;margin-top:22px;line-height:1.5;}
+  .empty-note{background:#fff;border-radius:var(--radius);padding:24px;text-align:center;border:1px dashed var(--line);}
+
+  .hidden{display:none !important;}
+  @media print {
+    .topbar,.hero,.mic-row,.restart-btn,.print-btn,.lang-switch,.nav-row{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" fill="#1B2A4A"/><path d="M20 8 L28 16 V30 H12 V16 Z" fill="#E8A33D"/><rect x="17" y="21" width="6" height="9" fill="#1B2A4A"/><circle cx="20" cy="13" r="2.4" fill="#3F7A52"/></svg>
+    <span class="brand-name">JanMitra AI</span>
+  </div>
+  <div class="lang-switch" id="langSwitch">
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="hi">हिं</button>
+    <button class="lang-btn" data-lang="ta">தமிழ்</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO / LANDING -->
+  <div id="screen-hero">
+    <div class="hero">
+      <span class="offline-pill"><span class="dot"></span><span id="offlineLabel">Works without internet</span></span>
+      <h1 id="heroTitle" style="margin-top:14px;">JanMitra AI</h1>
+      <p class="tagline" id="heroTagline">Your friend for finding government schemes</p>
+
+      <div class="hero-path">
+        <div class="hero-step"><div class="lamp"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3v2M5 12H3m18 0h-2M6 6l1.4 1.4M18 6l-1.4 1.4M9 20h6M12 15a4 4 0 100-8 4 4 0 000 8z"/></svg></div><div class="lbl" id="stepAsk">Answer</div></div>
+        <div class="hero-connector"></div>
+        <div class="hero-step"><div class="lamp"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12l2 2 4-4M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></div><div class="lbl" id="stepMatch">Match</div></div>
+        <div class="hero-connector"></div>
+        <div class="hero-step"><div class="lamp"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12h6M9 16h6M9 8h6M6 4h9l3 3v13a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg></div><div class="lbl" id="stepDocs">Documents</div></div>
+      </div>
+
+      <button class="start-btn" id="startBtn">▶ <span id="startLabel">Start</span></button>
+    </div>
+
+    <div class="card">
+      <span class="section-label" id="howLabel">How it works</span>
+      <p style="margin:6px 0 0;font-size:0.94rem;" id="howText">Answer 12 simple questions about your family. The assistant works out which government schemes you likely qualify for, explains why in plain language, and gives you a document checklist — all calculated right here, without needing a live connection to any server.</p>
+    </div>
+  </div>
+
+  <!-- QUESTION FLOW -->
+  <div id="screen-quiz" class="hidden">
+    <div class="progress-wrap">
+      <div class="progress-track" id="progressTrack"></div>
+      <div class="progress-text" id="progressText"></div>
+    </div>
+    <div class="card">
+      <div class="q-bubble">
+        <span class="icon">💬</span>
+        <span id="questionText"></span>
+      </div>
+      <div class="options" id="optionsWrap"></div>
+      <div class="mic-row">
+        <button class="mic-btn" id="micBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z"/><path d="M19 11a7 7 0 01-14 0M12 18v3"/></svg><span id="micLabel">Speak your answer</span></button>
+      </div>
+      <div class="nav-row">
+        <button class="back-link" id="backBtn">← <span id="backLabel">Back</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="hidden">
+    <div class="card" style="background:var(--indigo);color:#fff;border:none;">
+      <span class="section-label" style="color:var(--turmeric);" id="resultsLabel">You may be eligible for</span>
+      <div id="resultsSummary" style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-top:4px;"></div>
+    </div>
+
+    <div id="resultsList"></div>
+
+    <div class="card">
+      <span class="section-label" id="checklistLabel">Full document checklist</span>
+      <ul class="doc-list agg-checklist" id="aggChecklist"></ul>
+      <button class="print-btn" id="printBtn" onclick="window.print()">🖨 <span id="printLabel">Print / save checklist</span></button>
+    </div>
+
+    <div class="card">
+      <span class="section-label" id="officeLabel">Where to apply</span>
+      <div id="officeList"></div>
+    </div>
+
+    <button class="restart-btn" id="restartBtn"><span id="restartLabel">Start over for another family member</span></button>
+    <p class="disclaimer" id="disclaimerText"></p>
+  </div>
+
+</div>
+
+<script>
+/* ================= DATA ================= */
+const T = {
+  offlineLabel:{en:"Works without internet",hi:"बिना इंटरनेट के काम करता है",ta:"இணையம் இல்லாமல் இயங்கும்"},
+  heroTitle:{en:"JanMitra AI",hi:"जनमित्र एआई",ta:"ஜன்மித்ரா ஏஐ"},
+  heroTagline:{en:"Your friend for finding government schemes",hi:"सरकारी योजनाएं खोजने में आपका मित्र",ta:"அரசு திட்டங்களைக் கண்டறிய உங்கள் நண்பர்"},
+  stepAsk:{en:"Answer",hi:"उत्तर दें",ta:"பதிலளி"},
+  stepMatch:{en:"Match",hi:"मिलान",ta:"பொருத்தம்"},
+  stepDocs:{en:"Documents",hi:"दस्तावेज़",ta:"ஆவணங்கள்"},
+  startLabel:{en:"Start",hi:"शुरू करें",ta:"தொடங்கு"},
+  howLabel:{en:"How it works",hi:"यह कैसे काम करता है",ta:"இது எப்படி வேலை செய்கிறது"},
+  howText:{en:"Answer 12 simple questions about your family. The assistant works out which government schemes you likely qualify for, explains why in plain language, and gives you a document checklist — all calculated right here, without needing a live connection to any server.",
+    hi:"अपने परिवार के बारे में 12 सरल प्रश्नों के उत्तर दें। सहायक बताएगा कि आप किन सरकारी योजनाओं के लिए पात्र हो सकते हैं, सरल भाषा में कारण समझाएगा, और दस्तावेज़ों की सूची देगा — यह सब इसी डिवाइस पर, बिना सर्वर से लगातार जुड़े हुए किया जाता है।",
+    ta:"உங்கள் குடும்பத்தைப் பற்றி 12 எளிய கேள்விகளுக்கு பதிலளிக்கவும். எந்த அரசுத் திட்டங்களுக்கு நீங்கள் தகுதி பெறலாம் என்பதை உதவியாளர் கணக்கிட்டு, எளிய மொழியில் காரணத்தை விளக்கி, ஆவணப் பட்டியலை தரும் — இவை அனைத்தும் இந்த சாதனத்திலேயே, சேவையகத்துடன் தொடர்ச்சியான இணைப்பு இல்லாமல் செய்யப்படும்."},
+  backLabel:{en:"Back",hi:"पीछे",ta:"பின்னால்"},
+  micLabelIdle:{en:"Speak your answer",hi:"बोलकर उत्तर दें",ta:"பேசி பதிலளிக்கவும்"},
+  micLabelOn:{en:"Listening…",hi:"सुन रहा है…",ta:"கேட்கிறது…"},
+  resultsLabel:{en:"You may be eligible for",hi:"आप इनके लिए पात्र हो सकते हैं",ta:"நீங்கள் இவற்றுக்கு தகுதி பெறலாம்"},
+  checklistLabel:{en:"Full document checklist",hi:"पूरी दस्तावेज़ सूची",ta:"முழு ஆவணப் பட்டியல்"},
+  printLabel:{en:"Print / save checklist",hi:"चेकलिस्ट प्रिंट/सेव करें",ta:"பட்டியலை அச்சிடு / சேமி"},
+  officeLabel:{en:"Where to apply",hi:"आवेदन कहां करें",ta:"எங்கு விண்ணப்பிக்கலாம்"},
+  restartLabel:{en:"Start over for another family member",hi:"किसी अन्य सदस्य के लिए फिर से शुरू करें",ta:"மற்றொரு உறுப்பினருக்கு மீண்டும் தொடங்கு"},
+  whyEligible:{en:"Why you may qualify",hi:"आप योग्य क्यों हो सकते हैं",ta:"நீங்கள் ஏன் தகுதி பெறலாம்"},
+  docsNeeded:{en:"Documents needed",hi:"आवश्यक दस्तावेज़",ta:"தேவையான ஆவணங்கள்"},
+  noMatch:{en:"Based on these answers, no scheme matched confidently. Please visit your nearest Common Service Centre with your Aadhaar and income certificate for a manual check — you may still qualify for local state schemes.",
+    hi:"इन उत्तरों के आधार पर, कोई योजना निश्चित रूप से मेल नहीं खाई। कृपया अपने आधार और आय प्रमाण पत्र के साथ नज़दीकी कॉमन सर्विस सेंटर जाएं — आप फिर भी स्थानीय राज्य योजनाओं के लिए पात्र हो सकते हैं।",
+    ta:"இந்த பதில்களின்படி, எந்தத் திட்டமும் உறுதியாகப் பொருந்தவில்லை. உங்கள் ஆதார் மற்றும் வருமான சான்றிதழுடன் அருகிலுள்ள பொது சேவை மையத்தை அணுகவும் — நீங்கள் இன்னும் மாநிலத் திட்டங்களுக்கு தகுதி பெறலாம்."},
+  disclaimer:{en:"JanMitra AI gives an initial estimate based on common national scheme rules. Always confirm final eligibility and required documents with your local government office, as rules vary by state and change over time.",
+    hi:"जनमित्र एआई सामान्य राष्ट्रीय योजना नियमों के आधार पर एक प्रारंभिक अनुमान देता है। अंतिम पात्रता और आवश्यक दस्तावेज़ों की पुष्टि हमेशा अपने स्थानीय सरकारी कार्यालय से करें, क्योंकि नियम राज्य के अनुसार अलग होते हैं और समय के साथ बदलते हैं।",
+    ta:"ஜன்மித்ரா ஏஐ பொதுவான தேசியத் திட்ட விதிகளின் அடிப்படையில் ஒரு ஆரம்ப மதிப்பீட்டை வழங்குகிறது. இறுதி தகுதி மற்றும் தேவையான ஆவணங்களை உங்கள் உள்ளூர் அரசு அலுவலகத்தில் எப்போதும் உறுதிப்படுத்திக் கொள்ளவும்."},
+  qOf:{en:(a,b)=>`Question ${a} of ${b}`,hi:(a,b)=>`प्रश्न ${a} / ${b}`,ta:(a,b)=>`கேள்வி ${a} / ${b}`}
+};
+
+const QUESTIONS = [
+  {key:"gender", text:{en:"What is your gender?",hi:"आपका लिंग क्या है?",ta:"உங்கள் பாலினம் என்ன?"},
+    options:[
+      {v:"female", l:{en:"Female",hi:"महिला",ta:"பெண்"}},
+      {v:"male", l:{en:"Male",hi:"पुरुष",ta:"ஆண்"}},
+      {v:"other", l:{en:"Other",hi:"अन्य",ta:"மற்றவை"}}
+    ]},
+  {key:"age", text:{en:"What is your age group?",hi:"आपकी आयु वर्ग क्या है?",ta:"உங்கள் வயது வரம்பு என்ன?"},
+    options:[
+      {v:"u18", l:{en:"Under 18",hi:"18 से कम",ta:"18க்கு கீழ்"}},
+      {v:"18-40", l:{en:"18 – 40",hi:"18 – 40",ta:"18 – 40"}},
+      {v:"40-60", l:{en:"40 – 60",hi:"40 – 60",ta:"40 – 60"}},
+      {v:"60+", l:{en:"60 and above",hi:"60 और अधिक",ta:"60 மற்றும் அதற்கு மேல்"}}
+    ]},
+  {key:"marital", text:{en:"What is your marital status?",hi:"आपकी वैवाहिक स्थिति क्या है?",ta:"உங்கள் திருமண நிலை என்ன?"},
+    options:[
+      {v:"unmarried", l:{en:"Unmarried",hi:"अविवाहित",ta:"திருமணமாகாதவர்"}},
+      {v:"married", l:{en:"Married",hi:"विवाहित",ta:"திருமணமானவர்"}},
+      {v:"widowed", l:{en:"Widowed",hi:"विधवा/विधुर",ta:"விதவை/விதவன்"}},
+      {v:"divorced", l:{en:"Divorced / Separated",hi:"तलाकशुदा / अलग",ta:"விவாகரத்து / பிரிந்தவர்"}}
+    ]},
+  {key:"area", text:{en:"Where do you live?",hi:"आप कहां रहते हैं?",ta:"நீங்கள் எங்கு வசிக்கிறீர்கள்?"},
+    options:[
+      {v:"rural", l:{en:"Village (rural)",hi:"गांव (ग्रामीण)",ta:"கிராமம் (கிராமப்புறம்)"}},
+      {v:"urban", l:{en:"Town / City (urban)",hi:"शहर (शहरी)",ta:"நகரம் (நகர்ப்புறம்)"}}
+    ]},
+  {key:"occupation", text:{en:"What is your main occupation?",hi:"आपका मुख्य व्यवसाय क्या है?",ta:"உங்கள் முக்கிய தொழில் என்ன?"},
+    options:[
+      {v:"farmer", l:{en:"Farmer",hi:"किसान",ta:"விவசாயி"}},
+      {v:"laborer", l:{en:"Daily wage labourer",hi:"दैनिक मजदूर",ta:"தினக்கூலி தொழிலாளி"}},
+      {v:"self", l:{en:"Self-employed / Small business",hi:"स्वरोजगार / छोटा व्यवसाय",ta:"சுயதொழில் / சிறு வணிகம்"}},
+      {v:"student", l:{en:"Student",hi:"विद्यार्थी",ta:"மாணவர்"}},
+      {v:"unemployed", l:{en:"Unemployed",hi:"बेरोजगार",ta:"வேலையில்லாதவர்"}},
+      {v:"other", l:{en:"Other job",hi:"अन्य काम",ta:"மற்ற வேலை"}}
+    ]},
+  {key:"income", text:{en:"What is your family's yearly income?",hi:"आपके परिवार की वार्षिक आय क्या है?",ta:"உங்கள் குடும்பத்தின் ஆண்டு வருமானம் என்ன?"},
+    options:[
+      {v:"below1", l:{en:"Below ₹1 lakh",hi:"₹1 लाख से कम",ta:"₹1 லட்சத்திற்கு கீழ்"}},
+      {v:"1-3", l:{en:"₹1 – 3 lakh",hi:"₹1 – 3 लाख",ta:"₹1 – 3 லட்சம்"}},
+      {v:"3-8", l:{en:"₹3 – 8 lakh",hi:"₹3 – 8 लाख",ta:"₹3 – 8 லட்சம்"}},
+      {v:"above8", l:{en:"Above ₹8 lakh",hi:"₹8 लाख से अधिक",ta:"₹8 லட்சத்திற்கு மேல்"}}
+    ]},
+  {key:"category", text:{en:"What is your social category?",hi:"आपकी सामाजिक श्रेणी क्या है?",ta:"உங்கள் சமூக வகை என்ன?"},
+    options:[
+      {v:"general", l:{en:"General",hi:"सामान्य",ta:"பொது"}},
+      {v:"sc", l:{en:"SC",hi:"अनुसूचित जाति (SC)",ta:"பட்டியல் சாதி (SC)"}},
+      {v:"st", l:{en:"ST",hi:"अनुसूचित जनजाति (ST)",ta:"பட்டியல் பழங்குடி (ST)"}},
+      {v:"obc", l:{en:"OBC",hi:"अन्य पिछड़ा वर्ग (OBC)",ta:"பிற்படுத்தப்பட்ட வகுப்பு (OBC)"}},
+      {v:"minority", l:{en:"Minority",hi:"अल्पसंख्यक",ta:"சிறுபான்மையினர்"}}
+    ]},
+  {key:"disability", text:{en:"Does anyone applying have a disability?",hi:"क्या आवेदक को कोई विकलांगता है?",ta:"விண்ணப்பிப்பவருக்கு ஏதேனும் மாற்றுத்திறன் உள்ளதா?"},
+    options:[
+      {v:"yes", l:{en:"Yes",hi:"हां",ta:"ஆம்"}},
+      {v:"no", l:{en:"No",hi:"नहीं",ta:"இல்லை"}}
+    ]},
+  {key:"children", text:{en:"How many children under 18 do you have?",hi:"आपके कितने बच्चे 18 वर्ष से कम आयु के हैं?",ta:"18 வயதுக்குட்பட்ட எத்தனை குழந்தைகள் உள்ளனர்?"},
+    options:[
+      {v:"0", l:{en:"None",hi:"कोई नहीं",ta:"இல்லை"}},
+      {v:"1", l:{en:"1",hi:"1",ta:"1"}},
+      {v:"2", l:{en:"2",hi:"2",ta:"2"}},
+      {v:"3+", l:{en:"3 or more",hi:"3 या अधिक",ta:"3 அல்லது அதற்கு மேல்"}}
+    ]},
+  {key:"house", text:{en:"What kind of house do you live in?",hi:"आप किस प्रकार के घर में रहते हैं?",ta:"நீங்கள் எந்த வகை வீட்டில் வசிக்கிறீர்கள்?"},
+    options:[
+      {v:"pucca", l:{en:"Pucca (concrete/solid)",hi:"पक्का (कंक्रीट)",ta:"நிரந்தர வீடு (கான்கிரீட்)"}},
+      {v:"kutcha", l:{en:"Kutcha (mud / thatched)",hi:"कच्चा (मिट्टी/फूस)",ta:"தற்காலிக வீடு (மண்/ஓலை)"}},
+      {v:"none", l:{en:"No house of my own",hi:"अपना घर नहीं है",ta:"சொந்த வீடு இல்லை"}}
+    ]},
+  {key:"land", text:{en:"Do you or your family own agricultural land?",hi:"क्या आपके पास कृषि भूमि है?",ta:"உங்களிடம் விவசாய நிலம் உள்ளதா?"},
+    options:[
+      {v:"yes", l:{en:"Yes",hi:"हां",ta:"ஆம்"}},
+      {v:"no", l:{en:"No",hi:"नहीं",ta:"இல்லை"}}
+    ]},
+  {key:"girlChild", text:{en:"Is there a girl child under 10 in the family?",hi:"क्या परिवार में 10 वर्ष से कम आयु की बालिका है?",ta:"குடும்பத்தில் 10 வயதுக்குட்பட்ட பெண் குழந்தை உள்ளதா?"},
+    options:[
+      {v:"yes", l:{en:"Yes",hi:"हां",ta:"ஆம்"}},
+      {v:"no", l:{en:"No",hi:"नहीं",ta:"இல்லை"}}
+    ]}
+];
+
+const DOCS = {
+  aadhaar:{en:"Aadhaar Card",hi:"आधार कार्ड",ta:"ஆதார் அட்டை"},
+  income:{en:"Income Certificate",hi:"आय प्रमाण पत्र",ta:"வருமான சான்றிதழ்"},
+  bank:{en:"Bank Passbook",hi:"बैंक पासबुक",ta:"வங்கி பாஸ்புக்"},
+  ration:{en:"Ration Card",hi:"राशन कार्ड",ta:"ரேஷன் கார்டு"},
+  land:{en:"Land Records",hi:"भूमि रिकॉर्ड / खतौनी",ta:"நில பதிவு ஆவணங்கள்"},
+  age:{en:"Age Proof",hi:"आयु प्रमाण पत्र",ta:"வயது சான்று"},
+  death:{en:"Husband's Death Certificate",hi:"पति का मृत्यु प्रमाण पत्र",ta:"கணவரின் இறப்பு சான்றிதழ்"},
+  caste:{en:"Caste Certificate (if applicable)",hi:"जाति प्रमाण पत्र (यदि लागू हो)",ta:"சாதி சான்றிதழ் (பொருந்தினால்)"},
+  schoolId:{en:"School / College ID",hi:"स्कूल/कॉलेज पहचान पत्र",ta:"பள்ளி/கல்லூரி அடையாள அட்டை"},
+  disabilityCert:{en:"Disability Certificate",hi:"विकलांगता प्रमाण पत्र",ta:"மாற்றுத்திறனாளி சான்றிதழ்"},
+  bpl:{en:"BPL Certificate",hi:"बीपीएल प्रमाण पत्र",ta:"பிபிஎல் சான்றிதழ்"},
+  sowing:{en:"Sowing Certificate",hi:"बुवाई प्रमाण पत्र",ta:"விதைப்பு சான்றிதழ்"},
+  girlBirth:{en:"Girl Child's Birth Certificate",hi:"बालिका का जन्म प्रमाण पत्र",ta:"பெண் குழந்தையின் பிறப்பு சான்றிதழ்"},
+  familyId:{en:"Family ID",hi:"परिवार पहचान पत्र",ta:"குடும்ப அடையாள அட்டை"}
+};
+
+const SCHEMES = [
+  {id:"pmay", name:{en:"PM Awas Yojana (Gramin)",hi:"प्रधानमंत्री आवास योजना (ग्रामीण)",ta:"பிரதமர் ஆவாஸ் யோஜனா (கிராமப்புற)"},
+    desc:{en:"Financial help to build a solid house if you live in a village and don't have a pucca house.",hi:"अगर आप गांव में रहते हैं और आपके पास पक्का मकान नहीं है, तो घर बनाने में आर्थिक मदद।",ta:"நீங்கள் கிராமத்தில் வசித்து, நிரந்தர வீடு இல்லையெனில், வீடு கட்ட நிதி உதவி."},
+    docs:["aadhaar","income","bank","ration"],
+    check:p=>p.area==="rural" && p.house!=="pucca" && (p.income==="below1"||p.income==="1-3")},
+  {id:"widow", name:{en:"Widow Pension Scheme",hi:"विधवा पेंशन योजना",ta:"விதவை ஓய்வூதிய திட்டம்"},
+    desc:{en:"Monthly pension support for widowed women.",hi:"विधवा महिलाओं के लिए मासिक पेंशन सहायता।",ta:"விதவைப் பெண்களுக்கு மாதாந்திர ஓய்வூதிய உதவி."},
+    docs:["aadhaar","death","income","bank","age"],
+    check:p=>p.gender==="female" && p.marital==="widowed"},
+  {id:"oldage", name:{en:"National Old Age Pension (IGNOAPS)",hi:"राष्ट्रीय वृद्धावस्था पेंशन योजना",ta:"தேசிய முதுமை ஓய்வூதியத் திட்டம்"},
+    desc:{en:"Monthly pension for senior citizens from low-income families.",hi:"कम आय वाले परिवारों के वरिष्ठ नागरिकों के लिए मासिक पेंशन।",ta:"குறைந்த வருமான குடும்பங்களைச் சேர்ந்த மூத்த குடிமக்களுக்கு மாதாந்திர ஓய்வூதியம்."},
+    docs:["aadhaar","age","income","bank"],
+    check:p=>p.age==="60+" && (p.income==="below1"||p.income==="1-3")},
+  {id:"ayushman", name:{en:"Ayushman Bharat (PM-JAY)",hi:"आयुष्मान भारत (पीएम-जय)",ta:"ஆயுஷ்மான் பாரத் (பிஎம்-ஜே)"},
+    desc:{en:"Free health insurance up to ₹5 lakh per year for hospital treatment.",hi:"अस्पताल के इलाज के लिए हर साल ₹5 लाख तक का मुफ्त स्वास्थ्य बीमा।",ta:"மருத்துவமனை சிகிச்சைக்கு ஆண்டுக்கு ₹5 லட்சம் வரை இலவச சுகாதார காப்பீடு."},
+    docs:["aadhaar","ration","income","familyId"],
+    check:p=>(p.income==="below1"||p.income==="1-3") || p.category!=="general"},
+  {id:"scholarship", name:{en:"Pre/Post-Matric Scholarship",hi:"प्री/पोस्ट-मैट्रिक छात्रवृत्ति",ta:"மெட்ரிக்குக்கு முன்/பின் உதவித்தொகை"},
+    desc:{en:"Financial help for school and college fees for students from eligible families.",hi:"पात्र परिवारों के छात्रों के लिए स्कूल और कॉलेज की फीस में आर्थिक मदद।",ta:"தகுதியான குடும்பங்களைச் சேர்ந்த மாணவர்களுக்கு பள்ளி/கல்லூரி கட்டணத்திற்கு நிதி உதவி."},
+    docs:["aadhaar","income","caste","schoolId","bank"],
+    check:p=>p.occupation==="student" && (p.category!=="general" || p.income==="below1" || p.income==="1-3") || (p.children!=="0" && (p.income==="below1"||p.income==="1-3"))},
+  {id:"pmkisan", name:{en:"PM Kisan Samman Nidhi",hi:"पीएम किसान सम्मान निधि",ta:"பிஎம் கிசான் சம்மான் நிதி"},
+    desc:{en:"₹6,000 per year given directly to farmer families who own farmland.",hi:"भूमि रखने वाले किसान परिवारों को हर साल सीधे ₹6,000 दिए जाते हैं।",ta:"நிலம் வைத்திருக்கும் விவசாயக் குடும்பங்களுக்கு ஆண்டுக்கு ₹6,000 நேரடியாக வழங்கப்படும்."},
+    docs:["aadhaar","land","bank"],
+    check:p=>p.occupation==="farmer" && p.land==="yes"},
+  {id:"fasalbima", name:{en:"PM Fasal Bima Yojana",hi:"प्रधानमंत्री फसल बीमा योजना",ta:"பிரதமர் பயிர் காப்பீட்டுத் திட்டம்"},
+    desc:{en:"Crop insurance that pays farmers if their harvest is damaged.",hi:"फसल खराब होने पर किसानों को भुगतान करने वाला फसल बीमा।",ta:"பயிர் சேதமடைந்தால் விவசாயிகளுக்கு பணம் வழங்கும் பயிர் காப்பீடு."},
+    docs:["aadhaar","land","bank","sowing"],
+    check:p=>p.occupation==="farmer" && p.land==="yes"},
+  {id:"disabilitypension", name:{en:"Disability Pension Scheme",hi:"विकलांगता पेंशन योजना",ta:"மாற்றுத்திறனாளி ஓய்வூதியத் திட்டம்"},
+    desc:{en:"Monthly pension for persons with disability.",hi:"विकलांग व्यक्तियों के लिए मासिक पेंशन।",ta:"மாற்றுத்திறனாளிகளுக்கு மாதாந்திர ஓய்வூதியம்."},
+    docs:["aadhaar","disabilityCert","income","bank"],
+    check:p=>p.disability==="yes"},
+  {id:"ujjwala", name:{en:"PM Ujjwala Yojana",hi:"प्रधानमंत्री उज्ज्वला योजना",ta:"பிரதமர் உஜ்வலா யோஜனா"},
+    desc:{en:"Free LPG gas connection for women from poor rural families.",hi:"गरीब ग्रामीण परिवारों की महिलाओं के लिए मुफ्त एलपीजी गैस कनेक्शन।",ta:"ஏழை கிராமப்புற குடும்பப் பெண்களுக்கு இலவச எல்பிஜி இணைப்பு."},
+    docs:["aadhaar","ration","bank","bpl"],
+    check:p=>p.gender==="female" && p.area==="rural" && (p.income==="below1"||p.income==="1-3")},
+  {id:"pmjjby", name:{en:"PM Jeevan Jyoti Bima Yojana",hi:"प्रधानमंत्री जीवन ज्योति बीमा योजना",ta:"பிரதமர் ஜீவன் ஜோதி காப்பீட்டுத் திட்டம்"},
+    desc:{en:"Life insurance of ₹2 lakh for a very small yearly premium (about ₹436/year).",hi:"बहुत कम वार्षिक प्रीमियम (लगभग ₹436/वर्ष) पर ₹2 लाख का जीवन बीमा।",ta:"மிகக் குறைந்த ஆண்டு பிரீமியத்தில் (சுமார் ₹436) ₹2 லட்சம் ஆயுள் காப்பீடு."},
+    docs:["aadhaar","bank"],
+    check:p=>p.age==="18-40" || p.age==="40-60"},
+  {id:"pmsby", name:{en:"PM Suraksha Bima Yojana",hi:"प्रधानमंत्री सुरक्षा बीमा योजना",ta:"பிரதமர் சுரக்ஷா காப்பீட்டுத் திட்டம்"},
+    desc:{en:"Accident insurance of ₹2 lakh for a very small yearly premium (about ₹20/year).",hi:"बहुत कम वार्षिक प्रीमियम (लगभग ₹20/वर्ष) पर ₹2 लाख का दुर्घटना बीमा।",ta:"மிகக் குறைந்த ஆண்டு பிரீமியத்தில் (சுமார் ₹20) ₹2 லட்சம் விபத்து காப்பீடு."},
+    docs:["aadhaar","bank"],
+    check:p=>p.age!=="u18"},
+  {id:"sukanya", name:{en:"Sukanya Samriddhi Yojana",hi:"सुकन्या समृद्धि योजना",ta:"சுகன்யா சம்ரிதி யோஜனா"},
+    desc:{en:"High-interest savings account for a girl child's future education and marriage.",hi:"बालिका की भविष्य की शिक्षा और विवाह के लिए उच्च ब्याज बचत खाता।",ta:"பெண் குழந்தையின் எதிர்கால கல்வி மற்றும் திருமணத்திற்கான உயர் வட்டி சேமிப்புக் கணக்கு."},
+    docs:["girlBirth","aadhaar","bank"],
+    check:p=>p.girlChild==="yes"}
+];
+
+const OFFICES = [
+  {icon:"csc", title:{en:"Common Service Centre (CSC)",hi:"कॉमन सर्विस सेंटर (CSC)",ta:"பொது சேவை மையம் (CSC)"},
+    desc:{en:"Nearest digital seva kendra — can apply online for most schemes on your behalf.",hi:"नज़दीकी डिजिटल सेवा केंद्र — अधिकांश योजनाओं के लिए आपकी ओर से ऑनलाइन आवेदन कर सकता है।",ta:"அருகிலுள்ள டிஜிட்டல் சேவா மையம் — பெரும்பாலான திட்டங்களுக்கு உங்களுக்காக ஆன்லைனில் விண்ணப்பிக்கலாம்."}},
+  {icon:"panchayat", title:{en:"Gram Panchayat / Block Office",hi:"ग्राम पंचायत / ब्लॉक कार्यालय",ta:"கிராம பஞ்சாயத்து / வட்டார அலுவலகம்"},
+    desc:{en:"For income, residence, and local certificates needed for most applications.",hi:"अधिकांश आवेदनों के लिए आवश्यक आय, निवास और स्थानीय प्रमाण पत्रों के लिए।",ta:"பெரும்பாலான விண்ணப்பங்களுக்குத் தேவையான வருமானம், வதிவிடம் மற்றும் உள்ளூர் சான்றிதழ்களுக்கு."}},
+  {icon:"bank", title:{en:"Nearest Bank Branch / Post Office",hi:"नज़दीकी बैंक शाखा / डाकघर",ta:"அருகிலுள்ள வங்கி கிளை / அஞ்சல் அலுவலகம்"},
+    desc:{en:"For opening accounts and enrolling in pension or insurance schemes.",hi:"खाता खोलने और पेंशन या बीमा योजनाओं में नामांकन के लिए।",ta:"கணக்கு திறப்பதற்கும் ஓய்வூதியம் அல்லது காப்பீட்டுத் திட்டங்களில் சேருவதற்கும்."}},
+  {icon:"anganwadi", title:{en:"Anganwadi Centre",hi:"आंगनवाड़ी केंद्र",ta:"அங்கன்வாடி மையம்"},
+    desc:{en:"For schemes related to women, children, and nutrition support.",hi:"महिलाओं, बच्चों और पोषण सहायता से जुड़ी योजनाओं के लिए।",ta:"பெண்கள், குழந்தைகள் மற்றும் ஊட்டச்சத்து உதவி தொடர்பான திட்டங்களுக்கு."}},
+  {icon:"tehsil", title:{en:"Tehsil / Taluk Office",hi:"तहसील / तालुक कार्यालय",ta:"தாலுகா அலுவலகம்"},
+    desc:{en:"For caste, income, domicile certificates and land record verification.",hi:"जाति, आय, निवास प्रमाण पत्र और भूमि रिकॉर्ड सत्यापन के लिए।",ta:"சாதி, வருமானம், வதிவிடச் சான்றிதழ்கள் மற்றும் நில பதிவு சரிபார்ப்புக்கு."}}
+];
+
+const OFFICE_ICONS = {
+  csc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="13" rx="2"/><path d="M8 21h8M12 18v3"/></svg>',
+  panchayat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6"/></svg>',
+  bank: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9 10v9M15 10v9M3 21h18"/></svg>',
+  anganwadi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M6 21v-2a6 6 0 0112 0v2"/></svg>',
+  tehsil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 5h5l-4 4 1.5 6L12 14l-4.5 3L9 11 5 7h5z"/></svg>'
+};
+
+/* ================= STATE ================= */
+let lang = "en";
+let step = 0;
+let profile = {};
+let recognizer = null;
+
+/* ================= HELPERS ================= */
+function tr(key, ...args){
+  const v = T[key][lang];
+  return typeof v === "function" ? v(...args) : v;
+}
+function setLangClass(){
+  document.body.classList.remove("lang-hi","lang-ta");
+  if(lang==="hi") document.body.classList.add("lang-hi");
+  if(lang==="ta") document.body.classList.add("lang-ta");
+}
+function renderStaticText(){
+  document.getElementById("offlineLabel").textContent = tr("offlineLabel");
+  document.getElementById("heroTitle").textContent = tr("heroTitle");
+  document.getElementById("heroTagline").textContent = tr("heroTagline");
+  document.getElementById("stepAsk").textContent = tr("stepAsk");
+  document.getElementById("stepMatch").textContent = tr("stepMatch");
+  document.getElementById("stepDocs").textContent = tr("stepDocs");
+  document.getElementById("startLabel").textContent = tr("startLabel");
+  document.getElementById("howLabel").textContent = tr("howLabel");
+  document.getElementById("howText").textContent = tr("howText");
+  document.getElementById("backLabel").textContent = tr("backLabel");
+  document.getElementById("micLabel").textContent = tr("micLabelIdle");
+  document.getElementById("resultsLabel").textContent = tr("resultsLabel");
+  document.getElementById("checklistLabel").textContent = tr("checklistLabel");
+  document.getElementById("printLabel").textContent = tr("printLabel");
+  document.getElementById("officeLabel").textContent = tr("officeLabel");
+  document.getElementById("restartLabel").textContent = tr("restartLabel");
+  document.getElementById("disclaimerText").textContent = tr("disclaimer");
+}
+
+function showScreen(id){
+  ["screen-hero","screen-quiz","screen-results"].forEach(s=>{
+    document.getElementById(s).classList.toggle("hidden", s!==id);
+  });
+}
+
+/* ================= QUIZ ================= */
+function startQuiz(){
+  step = 0; profile = {};
+  showScreen("screen-quiz");
+  renderQuestion();
+}
+function renderQuestion(){
+  const q = QUESTIONS[step];
+  document.getElementById("questionText").textContent = q.text[lang];
+  document.getElementById("progressText").textContent = tr("qOf", step+1, QUESTIONS.length);
+
+  const track = document.getElementById("progressTrack");
+  track.innerHTML = "";
+  QUESTIONS.forEach((_,i)=>{
+    const seg = document.createElement("div");
+    seg.className = "progress-seg" + (i<=step ? " done":"");
+    track.appendChild(seg);
+  });
+
+  const wrap = document.getElementById("optionsWrap");
+  wrap.innerHTML = "";
+  q.options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.className = "opt-btn" + (profile[q.key]===opt.v ? " selected":"");
+    btn.textContent = opt.l[lang];
+    btn.onclick = ()=>selectOption(q.key, opt.v);
+    wrap.appendChild(btn);
+  });
+
+  document.getElementById("backBtn").style.visibility = step===0 ? "hidden":"visible";
+}
+function selectOption(key, value){
+  profile[key] = value;
+  setTimeout(()=>{
+    if(step < QUESTIONS.length - 1){
+      step++;
+      renderQuestion();
+    } else {
+      computeResults();
+    }
+  }, 150);
+}
+document.getElementById("backBtn").onclick = ()=>{
+  if(step>0){ step--; renderQuestion(); }
+};
+
+/* ================= VOICE INPUT ================= */
+function initRecognizer(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = false;
+  return r;
+}
+document.getElementById("micBtn").onclick = function(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    alert("Voice input needs a browser with speech recognition support (e.g. Chrome) and an internet connection for this demo feature.");
+    return;
+  }
+  const btn = this;
+  const r = initRecognizer();
+  r.lang = lang==="hi" ? "hi-IN" : lang==="ta" ? "ta-IN" : "en-IN";
+  btn.classList.add("listening");
+  document.getElementById("micLabel").textContent = tr("micLabelOn");
+  r.start();
+  r.onresult = (e)=>{
+    const said = e.results[0][0].transcript.toLowerCase();
+    matchSpokenToOption(said);
+  };
+  r.onend = ()=>{
+    btn.classList.remove("listening");
+    document.getElementById("micLabel").textContent = tr("micLabelIdle");
+  };
+  r.onerror = ()=>{
+    btn.classList.remove("listening");
+    document.getElementById("micLabel").textContent = tr("micLabelIdle");
+  };
+};
+function matchSpokenToOption(said){
+  const q = QUESTIONS[step];
+  for(const opt of q.options){
+    const label = opt.l[lang].toLowerCase();
+    if(said.includes(label) || label.includes(said)){
+      selectOption(q.key, opt.v);
+      return;
+    }
+  }
+}
+
+/* ================= RESULTS ================= */
+function computeResults(){
+  const matches = SCHEMES.filter(s=>{
+    try{ return s.check(profile); } catch(e){ return false; }
+  });
+  showScreen("screen-results");
+  renderResults(matches);
+}
+function speak(text){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang==="hi" ? "hi-IN" : lang==="ta" ? "ta-IN" : "en-IN";
+  window.speechSynthesis.speak(u);
+}
+function renderResults(matches){
+  const summary = document.getElementById("resultsSummary");
+  const list = document.getElementById("resultsList");
+  const agg = document.getElementById("aggChecklist");
+  list.innerHTML = ""; agg.innerHTML = "";
+
+  if(matches.length===0){
+    summary.textContent = "—";
+    list.innerHTML = `<div class="empty-note">${tr("noMatch")}</div>`;
+  } else {
+    summary.textContent = matches.map(m=>m.name[lang]).join(" • ");
+    const docSet = new Set();
+
+    matches.forEach(scheme=>{
+      const card = document.createElement("div");
+      card.className = "card result-card";
+      const whyId = "why-"+scheme.id;
+      card.innerHTML = `
+        <div class="result-head">
+          <div>
+            <p class="result-name">${scheme.name[lang]}</p>
+            <p class="result-desc">${scheme.desc[lang]}</p>
+          </div>
+          <button class="listen-btn" title="${tr('startLabel')}" onclick="speak(\`${scheme.name[lang]}. ${scheme.desc[lang]}\`.replace(/\`/g,''))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/></svg>
+          </button>
+        </div>
+        <div class="toggle-row">
+          <button class="toggle-btn" onclick="document.getElementById('${whyId}').classList.toggle('open')">ⓘ ${tr('whyEligible')}</button>
+          <div class="why-box" id="${whyId}">${explainWhy(scheme)}</div>
+        </div>
+        <p class="section-label" style="margin-top:14px;">${tr('docsNeeded')}</p>
+        <ul class="doc-list">
+          ${scheme.docs.map(d=>`<li><input type="checkbox"> ${DOCS[d][lang]}</li>`).join("")}
+        </ul>
+      `;
+      list.appendChild(card);
+      scheme.docs.forEach(d=>docSet.add(d));
+    });
+
+    docSet.forEach(d=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<input type="checkbox"> ${DOCS[d][lang]}`;
+      agg.appendChild(li);
+    });
+  }
+
+  const officeList = document.getElementById("officeList");
+  officeList.innerHTML = OFFICES.map(o=>`
+    <div class="office-item">
+      <div class="office-icon">${OFFICE_ICONS[o.icon]}</div>
+      <div>
+        <p class="office-title">${o.title[lang]}</p>
+        <p class="office-desc">${o.desc[lang]}</p>
+      </div>
+    </div>
+  `).join("");
+}
+
+function explainWhy(scheme){
+  const reasons = [];
+  const p = profile;
+  const map = {
+    female:{en:"you are female",hi:"आप महिला हैं",ta:"நீங்கள் பெண்"},
+    widowed:{en:"your marital status is widowed",hi:"आपकी वैवाहिक स्थिति विधवा है",ta:"உங்கள் திருமண நிலை விதவை"},
+    rural:{en:"you live in a rural area",hi:"आप ग्रामीण क्षेत्र में रहते हैं",ta:"நீங்கள் கிராமப்புறத்தில் வசிக்கிறீர்கள்"},
+    lowincome:{en:"your family income is in a low bracket",hi:"आपके परिवार की आय कम श्रेणी में है",ta:"உங்கள் குடும்ப வருமானம் குறைந்த வரம்பில் உள்ளது"},
+    senior:{en:"you are 60 or above",hi:"आप 60 वर्ष या उससे अधिक के हैं",ta:"நீங்கள் 60 அல்லது அதற்கு மேற்பட்ட வயதுடையவர்"},
+    farmer:{en:"you are a farmer who owns land",hi:"आप भूमि रखने वाले किसान हैं",ta:"நீங்கள் நிலம் வைத்திருக்கும் விவசாயி"},
+    disability:{en:"a disability was reported",hi:"विकलांगता बताई गई",ta:"மாற்றுத்திறன் தெரிவிக்கப்பட்டது"},
+    student:{en:"you are a student",hi:"आप विद्यार्थी हैं",ta:"நீங்கள் மாணவர்"},
+    category:{en:"you belong to a reserved category",hi:"आप आरक्षित श्रेणी से हैं",ta:"நீங்கள் ஒதுக்கீடு வகையைச் சேர்ந்தவர்"},
+    noPucca:{en:"you don't currently have a pucca house",hi:"आपके पास वर्तमान में पक्का मकान नहीं है",ta:"தற்போது உங்களுக்கு நிரந்தர வீடு இல்லை"},
+    girlChild:{en:"there is a girl child under 10 in your family",hi:"आपके परिवार में 10 वर्ष से कम की बालिका है",ta:"உங்கள் குடும்பத்தில் 10 வயதுக்குட்பட்ட பெண் குழந்தை உள்ளது"},
+    workingAge:{en:"you are within the eligible working-age range",hi:"आप पात्र कार्यशील आयु सीमा में हैं",ta:"நீங்கள் தகுதியான வேலை வயது வரம்பில் உள்ளீர்கள்"},
+    adult:{en:"you are above 18 years",hi:"आप 18 वर्ष से अधिक के हैं",ta:"நீங்கள் 18 வயதுக்கு மேற்பட்டவர்"}
+  };
+  if(scheme.id==="pmay"){ reasons.push(map.rural, map.noPucca, map.lowincome); }
+  if(scheme.id==="widow"){ reasons.push(map.female, map.widowed); }
+  if(scheme.id==="oldage"){ reasons.push(map.senior, map.lowincome); }
+  if(scheme.id==="ayushman"){ reasons.push(map.lowincome); }
+  if(scheme.id==="scholarship"){ reasons.push(map.student, map.category); }
+  if(scheme.id==="pmkisan" || scheme.id==="fasalbima"){ reasons.push(map.farmer); }
+  if(scheme.id==="disabilitypension"){ reasons.push(map.disability); }
+  if(scheme.id==="ujjwala"){ reasons.push(map.female, map.rural, map.lowincome); }
+  if(scheme.id==="pmjjby"){ reasons.push(map.workingAge); }
+  if(scheme.id==="pmsby"){ reasons.push(map.adult); }
+  if(scheme.id==="sukanya"){ reasons.push(map.girlChild); }
+
+  const seen = new Set();
+  const unique = reasons.filter(r=>{ const k=r.en; if(seen.has(k)) return false; seen.add(k); return true; });
+  return "• " + unique.map(r=>r[lang]).join("<br>• ");
+}
+
+/* ================= EVENTS ================= */
+document.getElementById("startBtn").onclick = startQuiz;
+document.getElementById("restartBtn").onclick = ()=>{ showScreen("screen-hero"); };
+document.querySelectorAll(".lang-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    lang = btn.dataset.lang;
+    document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active", b===btn));
+    setLangClass();
+    renderStaticText();
+    if(!document.getElementById("screen-quiz").classList.contains("hidden")) renderQuestion();
+    if(!document.getElementById("screen-results").classList.contains("hidden")) computeResults();
+  };
+});
+
+/* init */
+document.querySelector('.lang-btn[data-lang="en"]').classList.add("active");
+renderStaticText();
+</script>
+</body>
+</html>
